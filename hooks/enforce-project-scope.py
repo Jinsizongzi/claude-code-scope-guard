@@ -7,17 +7,22 @@ Exception: any path inside a `.claude` folder (global ~/.claude, or any
 project's .claude) is also silent, except the files that hold these rules
 themselves (~/.claude/settings.json and ~/.claude/hooks/), which keep the
 normal outside-the-project check.
+
+Claude Code's own temp folder (%TEMP%\\claude, where each session's
+scratchpad lives) is silent too.
 """
 from __future__ import annotations
 
 import json
 import os
 import sys
+import tempfile
 
 
 HOME_CLAUDE = os.path.join(os.path.expanduser("~"), ".claude")
 PROTECTED_FILES = [os.path.join(HOME_CLAUDE, "settings.json")]
 PROTECTED_DIRS = [os.path.join(HOME_CLAUDE, "hooks")]
+EXEMPT_DIRS = [os.path.join(tempfile.gettempdir(), "claude")]
 
 
 def main() -> None:
@@ -34,6 +39,9 @@ def main() -> None:
     target = _norm(path)
 
     if _in_claude_dir(target) and not _is_protected(target):
+        return
+
+    if any(_is_inside(target, _norm(d)) for d in EXEMPT_DIRS):
         return
 
     project_dir = os.environ.get("CLAUDE_PROJECT_DIR")

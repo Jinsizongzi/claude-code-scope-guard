@@ -9,6 +9,7 @@ Useful if you run Claude Code with broad `additionalDirectories` (e.g. whole dri
 - If the edited/written path is inside `$CLAUDE_PROJECT_DIR` (or a subdirectory of it) → silent, falls through to normal permission handling.
 - If the path is inside any `.claude` folder — the global `~/.claude`, or a `.claude` folder in any project — → silent, even when it's outside the current project. Claude Code config, memory, skills and `CLAUDE.md` files can be edited without a prompt.
   - Exception: `~/.claude/settings.json` and anything under `~/.claude/hooks/` don't get this exemption, so Claude can't quietly rewrite the permission rules or this hook itself. They follow the normal inside/outside-the-project check.
+- If the path is inside Claude Code's own temp folder (`%TEMP%\claude`, where each session's scratchpad lives) → silent. Claude is told to put its temp files there, so prompting for them is just noise.
 - If the path is outside `$CLAUDE_PROJECT_DIR`, or `CLAUDE_PROJECT_DIR` isn't set at all → returns a hook decision of `"ask"`, which forces a confirmation prompt regardless of `permissions.defaultMode`.
 - Tool calls that aren't `Edit`/`Write`/`NotebookEdit` (e.g. `Bash`, `Read`, `Glob`) are not touched by this hook at all — it only looks at `tool_input.file_path` / `tool_input.notebook_path`.
 
